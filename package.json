@@ -1,27 +1,24 @@
 {
-  "name": "electron-quick-start",
+  "name": "Projector-Color",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "description": "A temperature color data converter",
   "main": "main.js",
   "scripts": {
     "start": "electron ."
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/electron/electron-quick-start.git"
+    "url": "git+https://github.com/pzhang0306/Project-Color.git"
   },
   "keywords": [
     "Electron",
-    "quick",
-    "start",
-    "tutorial"
   ],
-  "author": "GitHub",
+  "author": "Peng Zhang",
   "license": "CC0-1.0",
   "bugs": {
-    "url": "https://github.com/electron/electron-quick-start/issues"
+    "url": "https://github.com/pzhang0306/Project-Color/issues"
   },
-  "homepage": "https://github.com/electron/electron-quick-start#readme",
+  "homepage": "https://github.com/pzhang0306/Project-Color#readme",
   "devDependencies": {
     "electron": "^1.3.4"
   }
