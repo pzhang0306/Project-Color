@@ -95,20 +95,34 @@
 
             // Main data processing logic
             function convert() {
-                var tTOutput = parse(tTData.data, {columns: true, ltrim: true, auto_parse: true, auto_parse_date: true});
-                console.log(tTOutput);
+                var tT = [];
+                var tTOutput = parse(tTData.data, {columns: true, ltrim: true, auto_parse: true});
                 var arrayLength = tTOutput.length;
 		for (let i = 0; i < arrayLength; i++) {
-                    console.log(tTOutput[i].Time);
+                    tT.push({
+                        timestampMs: Date.parse(tTOutput[i].Date+' '+tTOutput[i].Time)/1000,
+                        P: tTOutput[i].P,
+                        SV: tTOutput[i].SV,
+                    });
 		}
+                console.log(tT);
 
-                parse(tCData.data, {columns: true}, function(err, output){
-                    console.log(output);
-                    var arrayLength = output.length;
-		    for (let i = 0; i < arrayLength; i++) {
-                        output[i];
-		    }
-	        });
+                var tC = [];
+                var tCOutput = parse(tCData.data, {columns: true, ltrim: true, auto_parse: true});
+                arrayLength = tCOutput.length;
+		for (let i = 0; i < arrayLength; i++) {
+                    tC.push({
+                        timestampMs: Date.parse(tCOutput[i]['Trial Name'].split('@')[1])/1000,
+                        C: tCOutput[i]['C* '],
+                        L: tCOutput[i]['L* '],
+                        a: tCOutput[i]['a* '],
+                        b: tCOutput[i]['b* '],
+                        h: tCOutput[i]['h° '],
+                    });
+		}
+                console.log(tC);
+
+                
             }
         </script>
     </body>
