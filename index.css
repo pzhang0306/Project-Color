@@ -1,0 +1,35 @@
+.main {
+  display: flex;
+  flex-direction: column;
+}
+
+.file-loader {
+  display: flex;
+  flex-direction: row;
+}
+
+.Temperature {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  border-right: 1px solid grey;
+  padding: 4px;
+}
+
+.Color {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  padding: 4px;
+}
+
+.file-selector {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.content {
+  box-sizing: border-box;
+  width: 100%;
+}
+
