@@ -36,6 +36,7 @@
             var parse = require('csv-parse/lib/sync');
             var tTData = {};
             var tCData = {};
+            var tC = [];
                 
             document.getElementById('T-select-file').addEventListener('click',function(){
                 dialog.showOpenDialog(function (fileNames) {
@@ -105,9 +106,7 @@
                         SV: tTOutput[i].SV,
                     });
 		}
-                console.log(tT);
 
-                var tC = [];
                 var tCOutput = parse(tCData.data, {columns: true, ltrim: true, auto_parse: true});
                 arrayLength = tCOutput.length;
 		for (let i = 0; i < arrayLength; i++) {
@@ -120,9 +119,38 @@
                         h: tCOutput[i]['h° '],
                     });
 		}
-                console.log(tC);
 
-                
+                var merged = tT.concat(tC);
+                merged.sort(function(a, b) {
+                    if (a.timestampMs == b.timestampMs) return 0;
+                    return a.timestampMs > b.timestampMs ? 1 : -1;
+                });
+
+                arrayLength = merged.length;
+                let prev;
+                let next;
+                next = 0;
+		while (next < arrayLength) {
+                    if (merged[next].P != null) {
+                        if (prev == null) {
+                            for (let i = 0; i < next; i++) {
+                                merged[i].T = merged[next].P;
+                            }
+                        } else {
+                            for (let i = prev + 1; i < next; i++) {
+                                it = merged[i].timestampMs;
+                                prevt = merged[prev].timestampMs;
+                                nextt = merged[next].timestampMs;
+                                merged[i].T = (merged[next].P * (it - prevt) + merged[prev].P * (nextt - it)) / (nextt - prevt);
+                            }
+                        }
+                        prev = next;
+                    }
+                    next++;
+                }
+                for (let i = prev + 1; i < arrayLength; i++) {
+                    merged[i].T = merged[prev].P;
+                }
             }
         </script>
     </body>
