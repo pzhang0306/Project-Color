@@ -33,3 +33,8 @@
   width: 100%;
 }
 
+.convertButton {
+  width: 150px;
+  align-self: center;
+}
+
