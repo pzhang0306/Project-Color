@@ -1,158 +1,37 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Temperature-Color Converter</title>
-        <link rel="stylesheet" type="text/css" href="index.css">
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body>
-        <div class="main">
-		<div class="file-loader">
-			<div class="Temperature">
-			    <div class="file-selector">
-				<input type="text" placeholder="Please select a t-T file" id="T-actual-file" disabled="disabled"/>
-				<input type="button" value="Choose a file" id="T-select-file"/>
-			    </div>
-			    <br><br>
-			    <textarea id="T-content-editor" class="content" rows="20"></textarea><br><br>
-			</div>
-			<div class="Color">
-			    <div class="file-selector">
-				<input type="text" placeholder="Please select a t-C file" id="C-actual-file" disabled="disabled"/>
-				<input type="button" value="Choose a file" id="C-select-file"/>
-			    </div>
-			    <br><br>
-			    <textarea id="C-content-editor" class="content" rows="20"></textarea><br><br>
-			</div>
-		</div>
-                <br>
-		<input type="button" id="convertButton" value="Convert and save"/>
+
+<head>
+    <title>Temperature-Color Converter</title>
+    <link rel="stylesheet" type="text/css" href="index.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <div class="main">
+        <div class="file-loader">
+            <div class="Temperature">
+                <div class="file-selector">
+                    <input type="text" placeholder="Please select a t-T file" id="T-actual-file" disabled="disabled" />
+                    <input type="button" value="Choose a file" id="T-select-file" />
+                </div>
+                <br><br>
+                <textarea id="T-content-editor" class="content" rows="20"></textarea><br><br>
+            </div>
+            <div class="Color">
+                <div class="file-selector">
+                    <input type="text" placeholder="Please select a t-C file" id="C-actual-file" disabled="disabled" />
+                    <input type="button" value="Choose a file" id="C-select-file" />
+                </div>
+                <br><br>
+                <textarea id="C-content-editor" class="content" rows="20"></textarea><br><br>
+            </div>
         </div>
-        <script>
-            var app = require('electron').remote; 
-            var dialog = app.dialog;
-            var fs = require('fs');
-            var parse = require('csv-parse/lib/sync');
-            var tTData = {};
-            var tCData = {};
-            var tC = [];
-                
-            document.getElementById('T-select-file').addEventListener('click',function(){
-                dialog.showOpenDialog(function (fileNames) {
-                    if(fileNames === undefined){
-                        console.log("No file selected");
-                    }else{
-                        document.getElementById("T-actual-file").value = fileNames[0];
-                        var contentEditor = document.getElementById("T-content-editor");
-                        readFile(fileNames[0], contentEditor, tTData);
-                    }
-                }); 
-            },false);
+        <br>
+        <input type="button" id="convertButton" value="Convert and save" />
+    </div>
+    <script src="backbone.js"></script>
+</body>
 
-            document.getElementById('C-select-file').addEventListener('click',function(){
-                dialog.showOpenDialog(function (fileNames) {
-                    if(fileNames === undefined){
-                        console.log("No file selected");
-                    }else{
-                        document.getElementById("C-actual-file").value = fileNames[0];
-                        var contentEditor = document.getElementById("C-content-editor");
-                        readFile(fileNames[0], contentEditor, tCData);
-                    }
-                }); 
-            },false);
-            
-            document.getElementById('convertButton').addEventListener('click',function(){
-                dialog.showSaveDialog(function (actualFilePath) {
-                    saveChanges(actualFilePath,document.getElementById('C-content-editor').value);
-                });
-            },false);
-            
-            function readFile(filepath, contentEditor, result) {
-                fs.readFile(filepath, 'utf-8', function (err, data) {
-                    if(err){
-                        alert("An error ocurred reading the file :" + err.message);
-                        return;
-                    }
-                    contentEditor.value = data;
-                    result.data = data;
-                    if (tTData.data && tCData.data) {
-                        convert();
-                    }
-                });
-            }
-            
-            function saveChanges(filepath,content){
-                fs.writeFile(filepath, content, function (err) {
-                    if(err){
-                        alert("An error ocurred updating the file"+ err.message);
-                        console.log(err);
-                        return;
-                    }
-                    
-                    alert("The file has been succesfully saved");
-                }); 
-            }
-
-            // Main data processing logic
-            function convert() {
-                var tT = [];
-                var tTOutput = parse(tTData.data, {columns: true, ltrim: true, auto_parse: true});
-                var arrayLength = tTOutput.length;
-		for (let i = 0; i < arrayLength; i++) {
-                    tT.push({
-                        timestampMs: Date.parse(tTOutput[i].Date+' '+tTOutput[i].Time)/1000,
-                        P: tTOutput[i].P,
-                        SV: tTOutput[i].SV,
-                    });
-		}
-
-                var tCOutput = parse(tCData.data, {columns: true, ltrim: true, auto_parse: true});
-                arrayLength = tCOutput.length;
-		for (let i = 0; i < arrayLength; i++) {
-                    tC.push({
-                        timestampMs: Date.parse(tCOutput[i]['Trial Name'].split('@')[1])/1000,
-                        C: tCOutput[i]['C* '],
-                        L: tCOutput[i]['L* '],
-                        a: tCOutput[i]['a* '],
-                        b: tCOutput[i]['b* '],
-                        h: tCOutput[i]['h° '],
-                    });
-		}
-
-                var merged = tT.concat(tC);
-                merged.sort(function(a, b) {
-                    if (a.timestampMs == b.timestampMs) return 0;
-                    return a.timestampMs > b.timestampMs ? 1 : -1;
-                });
-
-                arrayLength = merged.length;
-                let prev;
-                let next;
-                next = 0;
-		while (next < arrayLength) {
-                    if (merged[next].P != null) {
-                        if (prev == null) {
-                            for (let i = 0; i < next; i++) {
-                                merged[i].T = merged[next].P;
-                            }
-                        } else {
-                            for (let i = prev + 1; i < next; i++) {
-                                it = merged[i].timestampMs;
-                                prevt = merged[prev].timestampMs;
-                                nextt = merged[next].timestampMs;
-                                merged[i].T = (merged[next].P * (it - prevt) + merged[prev].P * (nextt - it)) / (nextt - prevt);
-                            }
-                        }
-                        prev = next;
-                    }
-                    next++;
-                }
-                for (let i = prev + 1; i < arrayLength; i++) {
-                    merged[i].T = merged[prev].P;
-                }
-            }
-        </script>
-    </body>
 </html>
-
