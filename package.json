@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/pzhang0306/Project-Color#readme",
   "devDependencies": {
-    "electron": "^1.3.4"
+    "csv": "^1.1.0",
+    "electron": "^1.3.4",
+    "exceljs": "^0.2.24"
   }
 }
