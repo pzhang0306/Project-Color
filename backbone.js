@@ -1,8 +1,8 @@
 var app = require('electron').remote;
 var dialog = app.dialog;
 var fs = require('fs');
-var parse = require('csv-parse/lib/sync');
 var Excel = require('exceljs');
+var parse = require('csv-parse/lib/sync');
 var tTData = {};
 var tCData = {};
 var tC = [];
@@ -37,6 +37,9 @@ document.getElementById('convertButton').addEventListener('click', function() {
     if (tTData.data && tCData.data) {
         convert();
         dialog.showSaveDialog(function(actualFilePath) {
+            if(!(/\.xlsx$/.test(actualFilePath))) {
+                actualFilePath = actualFilePath + '.xlsx';
+            }
             saveChanges(actualFilePath);
         });
     } else {
@@ -121,9 +124,10 @@ function convert() {
         auto_parse: true
     });
     arrayLength = tCOutput.length;
+    var timeName= arrayLength > 0 && 'Trial Name' in tCOutput[0] ? 'Trial Name' : 'Name';
     for (let i = 0; i < arrayLength; i++) {
         tC.push({
-            timestampMs: Date.parse(tCOutput[i]['Trial Name'].split('@')[1]) / 1000,
+            timestampMs: Date.parse(tCOutput[i][timeName].split('@')[1]) / 1000,
             C: tCOutput[i]['C* '],
             L: tCOutput[i]['L* '],
             a: tCOutput[i]['a* '],
